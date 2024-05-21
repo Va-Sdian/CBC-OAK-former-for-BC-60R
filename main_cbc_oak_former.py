@@ -22,11 +22,11 @@ chosen_directory = None
 excel_file = None
 previous_loaded_file = None
 currently_loaded_file_is_refreshed: bool
+
 # Путь к шаблону в формате docx
 doc = DocxTemplate("_internal/empty_oak_template.docx")
-# Стандартный цвет заполнения переменных в файле docx (чёрный)
-# text_color = '#000000'
 
+# Переменная для выделения верхней границы референсного значчения MCHC
 mchc_high_value: int
 
 
@@ -111,7 +111,6 @@ def choose_save_directory():  # Спрашиваем, куда сохранят�
 
 
 def checkbox_event_arrows():  # Функция перезаполнения бланка, если был нажат чекбокс про выставление стрелочек
-    # print("checkbox toggled, current value:", check_arrows_var.get())
     # При простановке галочки перезаписываются все значения, и проставляются галочки
     global excel_file, currently_loaded_file_is_refreshed
     if excel_file is not None:
@@ -168,7 +167,6 @@ button_fill_template = customtkinter.CTkButton(app, text="Заполнить б�
 button_fill_template.pack(padx=20, pady=20)
 
 # Делаем словарь для хранения округлённых процентов лейкоцитарной формулы, и задаём функцию по его округлению
-# global met_perc, bond_perc, seg_perc, lym_perc, mon_perc, eos_perc, bas_perc
 leuko_percent_values = {
     "met_perc": 0,
     "bond_perc": 0,
@@ -283,7 +281,6 @@ context = {
 }
 
 # Зададим пустые переменные для референсных значений
-
 rbc_ref: str = '-'
 hct_ref: str = '-'
 hgb_ref: str = '-'
@@ -553,7 +550,6 @@ def check_value_and_get_rich_text(value, ref_range, check_colored=None,
     elif value_num > max_value:
         text_color = '#FF0000' if check_colored else '#000000'
         value_str += ' ↑' if check_arrows else ''
-        # print(f'value {value_num} > max_value {max_value}, text_color = {text_color}, value_str = {value_str}')
 
     return RichText(value_str, color=text_color, bold=True)
 
@@ -658,14 +654,12 @@ def open_excel_and_load_data(_excel_file):
                 mchc = clean_row['MCHC'].lstrip()
                 hct = clean_row['HCT'].lstrip()
                 hgb = clean_row['HGB'].lstrip()
+                
                 # Делаем проверку, что был загружен новый файл, а не снимали и ставили галочку на настройках галочек
                 if currently_loaded_file_is_refreshed:
                     mchc_error_message_box(mchc, mchc_high_value, hct, hgb)
-
-                # Дальше можно обращаться к данным в 'clean_row' используя названия колонок
-                # Например, допустим вам нужен ID пробы и Конт.
-                # patient_id = row['ID пациента'].strip()
-
+                # Заполнение при наличии ID пациента. Дополнительная проверка на Lym% случайна и не обязательна, 
+                # на подтверждение данных в таблице
                 if 'Пациент' in clean_row and 'Lym%' in clean_row:
                     context['owner'] = clean_row['Клиент'].lstrip()
                     context['patient_id'] = clean_row['ID пациента'].lstrip()
