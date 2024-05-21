@@ -571,6 +571,23 @@ def absolute_numbers(_met, _bond, _seg, _lym, _mon, _eos, _bas, _wbc):
     eos_abs = to_fixed(((wbc * _eos) / 100), 2)
     bas_abs = to_fixed(((wbc * _bas) / 100), 2)
 
+# По неизвестным причинам геманализатор стал выводить строки в другом формате.
+# Поэтому добавил функцию определения формата времени.
+def parse_datetime(datetime_str):
+    formats = [
+        '%d.%m.%Y %H:%M:%S',
+        '%Y/%m/%d %H:%M:%S'
+    ]
+
+    for fmt in formats:
+        try:
+            datetime_obj = datetime.strptime(datetime_str, fmt)
+            return datetime_obj
+        except ValueError:
+            continue
+
+    raise ValueError("Неизвестный формат даты и времени: {}".format(datetime_str))
+
 
 # Открытие файла ".csv" таблицы с гемоанализатора BC-60R с результатами как excel файла
 def open_excel_and_load_data(_excel_file):
@@ -587,7 +604,7 @@ def open_excel_and_load_data(_excel_file):
                 clean_row = {key.strip('\t'): value for key, value in row.items()}
 
                 datetime_str = clean_row['Время анализа'].lstrip()
-                datetime_obj = datetime.strptime(datetime_str, '%d.%m.%Y %H:%M:%S')
+                datetime_obj = parse_datetime(datetime_str)
                 date_str = datetime_obj.strftime('%d.%m.%Y')
 
                 species = clean_row['Вид'].lstrip()
