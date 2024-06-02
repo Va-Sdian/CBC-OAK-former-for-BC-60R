@@ -484,7 +484,10 @@ def to_fixed(num_obj, digits=0):
 
 # Вынужден был добавить функцию переработки значений, из-за неправильного заполнения при 0 и 0.0 и None
 def to_str_converting_float_to_int_if_possible(value):
-    if isinstance(value, int):
+    if value == "****":
+        # В случае невозможности подсчёта значения, анализатор выдаёт ****, что программой распознаётся как 'NoneType'
+        return str('—')
+    elif isinstance(value, int):
         # Для int просто преобразуем в строку
         return str(value)
     elif isinstance(value, float):
@@ -506,6 +509,7 @@ def to_str_converting_float_to_int_if_possible(value):
         except ValueError:
             # В случае неудачи с преобразованием строки в число
             return None
+
     else:
         # Если value не int, не float и не str, возвращаем None
         return None
@@ -530,6 +534,10 @@ def check_value_and_get_rich_text(value, ref_range, check_colored=None,
 
     # Преобразование значения value в строку с возможностью конвертации в int
     value_str = to_str_converting_float_to_int_if_possible(value)
+
+    if value_str == '—':
+        # Если анализатор проставил прочерк
+        return RichText('—', color='#000000', bold=True)
 
     # Проверка на наличие референсного диапазона
     if not ref_range or ref_range == "0" or ref_range == "-":
@@ -566,6 +574,7 @@ def absolute_numbers(_met, _bond, _seg, _lym, _mon, _eos, _bas, _wbc):
     mon_abs = to_fixed(((wbc * _mon) / 100), 2)
     eos_abs = to_fixed(((wbc * _eos) / 100), 2)
     bas_abs = to_fixed(((wbc * _bas) / 100), 2)
+
 
 # По неизвестным причинам геманализатор стал выводить строки в другом формате.
 # Поэтому добавил функцию определения формата времени.
@@ -654,7 +663,7 @@ def open_excel_and_load_data(_excel_file):
                 mchc = clean_row['MCHC'].lstrip()
                 hct = clean_row['HCT'].lstrip()
                 hgb = clean_row['HGB'].lstrip()
-                
+
                 # Делаем проверку, что был загружен новый файл, а не снимали и ставили галочку на настройках галочек
                 if currently_loaded_file_is_refreshed:
                     mchc_error_message_box(mchc, mchc_high_value, hct, hgb)
